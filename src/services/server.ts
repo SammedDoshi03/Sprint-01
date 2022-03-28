@@ -118,7 +118,7 @@ export default class Server {
                     movie: Joi.string().required(),
                     name: Joi.string().required(),
                     location: Joi.string().required(),
-                    seatsAvailable: Joi.number().required(),
+                    seatsAvailable: Joi.number().min(0).max(100).required(),
                 });
 
                 // validating req.body
