@@ -1,28 +1,26 @@
-import { Schema, model } from "mongoose";
-import { generate } from "shortid";
+/**
+ * @info schema for movies
+ */
 
+ import { Schema, model } from "mongoose";
 
-
-export interface IMovies {
-    _id: string;
-    mid: string;
-    name: string
-    showTime: Date;
-}
-
-const schema = new Schema({
-    mid: {
-        type: String,
-        default: generate,
-        index: true,
-        unique: true,
-    },
-    name: {
-      type: String,
-    },
-   showTime:{
-        type: Date,
-   },
-});
-
-export default model<IMovies>("movies", schema);
+ export interface IMovies {
+     _id: string;
+     name: string;
+     showTime: Date;
+ }
+ 
+ const schema = new Schema({
+     name: {
+         type: String,
+         required: true,
+         index: true,
+     },
+     showTime: {
+         type: Date,
+         required: true,
+         index: true,
+     },
+ });
+ 
+ export default model<IMovies>("movies", schema);

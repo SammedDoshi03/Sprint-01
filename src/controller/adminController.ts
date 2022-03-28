@@ -1,5 +1,3 @@
-
-
 import Bcrypt from "../services/bcrypt";
 import admins, {IAdmin} from "../models/admins";
 import cinemas, {ICinema} from "../models/cinemas";
@@ -15,17 +13,43 @@ export default class adminController {
      * @returns {Promise<IAdmin>}
      */
 
-    static async auth(email: string, password: string): Promise<IAdmin> {
+    /**
+     * creating a new admin
+     */
+     static async create(): Promise<void> {
+        const email = "admin2@gmail.com";
+        const pwd = "admin123"
+        const hash = await Bcrypt.hashing(pwd);
+        const data = {
+            email: email,
+            password: hash,
+        };
+        const auth = await admins.create(data);
+        console.log(auth);
+    }
 
-        return admins.findOne({email}).lean().then((admin: IAdmin) => {
-            if (!admin) {
-                throw new Error("Admin not found");
-            }
-            if (!Bcrypt.comparing(password, admin.password)) {
-                throw new Error("Password is incorrect");
-            }
-            return admin;
-        });
+    /**
+     * authenticating an admin
+     * @param email
+     * @param password
+     */
+    static async adminAuth(email: string, password: string): Promise<IAdmin> {
+        // fetch admin from database
+        const adm = await admins.findOne({ email }).lean();
+
+        // if admin exists or not
+        if (adm) {
+            // verify the password
+            const result = await Bcrypt.comparing(password, adm.password);
+
+            // if password is correct or not
+            // if correct, return the admin
+            if (result) return adm;
+            // throw error
+            else throw new Error("Password doesn't match");
+        }
+        // throw error
+        else throw new Error("Admin doesn't exist");
     }
 
     // Add a new cinema
@@ -38,7 +62,5 @@ export default class adminController {
         return await movies.create(movie);
     }
 
-    static createUser(data: IAdmin): Promise<IAdmin> {
-        return admins.create(data);
-    }
+    
 }

@@ -10,11 +10,8 @@ import responseToPostman from "../middleware/responseToPostman";
 import Log from "../config/log";
 import expressLog from "../middleware/expressLog";
 
-
-
-
 import Joi from "joi";
-import   morgan  from "morgan";
+import morgan from "morgan";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
@@ -23,11 +20,10 @@ import adminController from "../controller/adminController";
 import cinemaController from "../controller/cinemaController";
 import movieController from "../controller/movieController";
 
-
-export default class Server{
+export default class Server {
     app = express();
 
-    async start(){
+    async start() {
         console.log("Server started");
         this.app.listen(process.env.PORT);
         console.log("Server listening on port: " + process.env.PORT);
@@ -40,7 +36,7 @@ export default class Server{
     /**
      * @info middleware
      */
-    middleware(){
+    middleware() {
         this.app.use(morgan("combined"));
         this.app.use(expressLog);
         this.app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,59 +48,63 @@ export default class Server{
                 saveUninitialized: false,
                 store: new MongoStore({
                     mongoUrl: process.env.SESSION_MONGODB_URL,
-                    collectionName: "sessions"
+                    collectionName: "sessions",
                 }),
                 cookie: {
-                    maxAge: 7 * 24 * 60 * 60 * 1000
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
                 },
             }),
         );
+        //adminController.create();
     }
-
 
     /**
      * @info define all routes
      */
 
     routes() {
-        this.app.get("/",
-            ( req: Request, res: Response) => {
-                console.log("GET /");
-                res.send("Hello world");
-                }
-            );
-
+        this.app.get("/", (req: Request, res: Response) => {
+            console.log("GET /");
+            res.send("Hello world");
+        });
 
         /**
          * @info admin routes
          */
 
-        // create admin temporary
-        this.app.post("/admin/create",
-            responseToPostman(async  (req: Request) => {
-            console.log("create admin");
-                return adminController.createUser(req.body);
-              })
-        );
-
+        // authenticate admin
         this.app.post(
             "/admin/auth",
             responseToPostman(async (req: Request) => {
                 // create joi schema
                 const schema = Joi.object({
                     email: Joi.string().email().required(),
-                    password: Joi.string().required()
+                    password: Joi.string().required(),
                 });
 
                 // validating req.body
                 await schema.validateAsync(req.body);
 
-                const admin =  await  adminController.auth(req.body.email, req.body.password);
+                // authenticate admin
+                const adm = await adminController.adminAuth(req.body.email, req.body.password);
 
                 // set the admin session
                 // @ts-ignore
-                req.session.admin = admin;
-                return admin;
+                req.session.admin = adm;
+
+                return adm;
+            }),
+        );
+
+        // logging out user or admin
+        this.app.post(
+            "/logout",
+            responseToPostman((req: Request) => {
+                // destroy session
+                req.session.destroy(() => {});
+
+                // return success to user/admin
+                return { success: true, message: "User/admin is logged out" };
             }),
         );
 
@@ -114,93 +114,99 @@ export default class Server{
             responseToPostman(async (req: Request) => {
                 // create joi schema
                 const schema = Joi.object({
+                    //movie: Joi.string().required(),
                     movie: Joi.string().required(),
                     name: Joi.string().required(),
                     location: Joi.string().required(),
-                    seatsAvailable: Joi.number().required()
+                    seatsAvailable: Joi.number().required(),
                 });
 
                 // validating req.body
                 await schema.validateAsync(req.body);
 
                 // @ts-ignore
-                if(req.session && req.session.admin && req.session.admin.status === "Admin"){
-                        return await adminController.addCinema(req.body);
-                }
-                else{
+                if (req.session && req.session.admin /*&& req.session.admin.status === "Admin"*/) {
+                    return await adminController.addCinema(req.body);
+                } else {
                     throw new Error("You are not authorized to perform this action");
                 }
             }),
         );
 
         //Add movie
+
         this.app.post(
             "/admin/addMovie",
             responseToPostman(async (req: Request) => {
-                // create joi schema
-                const schema = Joi.object({
-                    // mid: Joi.string().required(),
-                    name:Joi.string().required(),
-                    showTime: Joi.date().required(),
-                });
+                //@ts-ignore
+                if (req.session && req.session.admin) {
+                    const schema = Joi.object({
+                        name: Joi.string().required(),
+                        showTime: Joi.date().iso().required(),
+                    });
 
-                // validating req.body
-                await schema.validateAsync(req.body);
+                    // validate req.body
+                    await schema.validateAsync(req.body);
 
-                // @ts-ignore
-                if(req.session && req.session.admin && req.session.admin.status === "Admin"){
-                        return await adminController.addMovie(req.body);
-                }
-                else{
-                    throw new Error("You are not authorized to perform this action");
-                }
+                    // create data
+                    const data = {
+                        name: req.body.name,
+                        showTime: req.body.showTime,
+                    };
+
+                    // create the book
+                    return movieController.create(data);
+                } else throw new Error("Admin is not authenticated");
             }),
         );
 
         /**
          * @info user routes
-          */
+         */
 
-        // Creating a new user
+        /**
+         * creating a user
+         */
         this.app.post(
             "/users/create",
-            responseToPostman(async (req: Request) => {
-
+            responseToPostman(async (req: Request, resp: Response) => {
                 // create joi schema
                 const schema = Joi.object({
                     name: Joi.string().required(),
                     email: Joi.string().email().required(),
                     password: Joi.string().required(),
-                    status: Joi.string().default("User")
                 });
 
                 // validating req.body
                 await schema.validateAsync(req.body);
                 // creating user
-                return await userController.createUser(req.body);
+                const data = await userController.create(req.body);
+
+                return data;
             }),
         );
 
-        // Authenticating a user
+        /**
+         * authorization
+         */
         this.app.post(
             "/users/auth",
-            responseToPostman(async (req: Request) => {
+            responseToPostman(async (req: Request, resp: Response) => {
                 // create joi schema
                 const schema = Joi.object({
                     email: Joi.string().email().required(),
-                    password: Joi.string().required()
+                    password: Joi.string().required(),
                 });
 
                 // validating req.body
                 await schema.validateAsync(req.body);
 
-                // authenticating user
-                 const  user = await userController.auth(req.body.email, req.body.password);
+                // authenticate user
+                const user = await userController.auth(req.body.email, req.body.password);
 
                 // set the user session
                 // @ts-ignore
                 req.session.user = user;
-
                 return user;
             }),
         );
@@ -213,8 +219,8 @@ export default class Server{
                 const schema = Joi.object({
                     cid: Joi.string().required(),
                     mid: Joi.string().required(),
-                    showTime: Joi.date().required(),
-                    seats: Joi.number().required()
+                    showTime: Joi.date().iso().required(),
+                    seats: Joi.number().required(),
                 });
 
                 // validating req.body
@@ -222,14 +228,14 @@ export default class Server{
 
                 // @ts-ignore
 
-                if (req.session && req.session.user && req.session.user.status === "User") {
-                   let data = {
+                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
+                    let data = {
                         // @ts-ignore
                         userid: req.session.user._id,
                         cid: req.body.cid,
                         mid: req.body.mid,
                         showTime: req.body.showTime,
-                        seats: req.body.seats
+                        seats: req.body.seats,
                     };
 
                     return await userController.bookTicket(data);
@@ -244,9 +250,23 @@ export default class Server{
             "/users/bookings",
             responseToPostman(async (req: Request) => {
                 // @ts-ignore
-                if (req.session && req.session.user && req.session.user.status === "User") {
+                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
                     // @ts-ignore
                     return await userController.getBookings(req.session.user._id);
+                } else {
+                    throw new Error("You need to login to perform this action");
+                }
+            }),
+        );
+
+        // get ticket confirmation
+        this.app.get(
+            "/users/ticket/:id",
+            responseToPostman(async (req: Request) => {
+                // @ts-ignore
+                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
+                    // @ts-ignore
+                    return await userController.getTicket(req.session.user._id, req.params.id);
                 } else {
                     throw new Error("You need to login to perform this action");
                 }
@@ -264,13 +284,29 @@ export default class Server{
             }),
         );
 
+        // fetch all movies
         this.app.get(
             "/movies",
             responseToPostman(async (req: Request) => {
-                return await movieController.getAllMovies();
+                const schema = Joi.object({
+                    page: Joi.number().integer().default(0),
+                    limit: Joi.number().integer().default(10),
+                    nameOrder: Joi.string().regex(/^[0-1]$/),
+                    showTimeOrder: Joi.string().regex(/^[0-1]$/),
+                });
+
+                // validate page and limit value
+                const data = await schema.validateAsync(req.query);
+
+                let option;
+                if (data.nameOrder !== undefined && data.showTimeOrder === undefined) option = 1;
+                else if (data.nameOrder === undefined && data.showTimeOrder !== undefined) option = 2;
+                else if (data.nameOrder !== undefined && data.showTimeOrder !== undefined) option = 3;
+                else option = 4;
+
+                return movieController.findAll(data.page, data.limit, +data.nameOrder, +data.showTimeOrder, option);
             }),
         );
-
     }
 
     /**
@@ -278,13 +314,13 @@ export default class Server{
      */
 
     defRoutes() {
-         // check if server running
-         this.app.all("/", (req, resp) => {
-             resp.status(200).send({ success: true, message: "Server is working" });
-         });
+        // check if server running
+        this.app.all("/", (req, resp) => {
+            resp.status(200).send({ success: true, message: "Server is working" });
+        });
 
-         this.app.all("*", (req, resp) => {
-             resp.status(404).send({ success: false, message: `given route [${req.method}] ${req.path} not found` });
-         });
+        this.app.all("*", (req, resp) => {
+            resp.status(404).send({ success: false, message: `given route [${req.method}] ${req.path} not found` });
+        });
     }
 }

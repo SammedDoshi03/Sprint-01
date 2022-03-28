@@ -5,56 +5,80 @@ import tickets, {ITickets} from "../models/tickets";
 import cinemas from "../models/cinemas";
 import cinemaController from "./cinemaController";
 import mongoose from "mongoose";
+import movies from "../models/movies";
 
 export default class userController {
-    /**
-     * creating a new user
-     * @param body
-     * @returns {Promise<IUser>}
+     /**
+     * 
+     * @param body 
+     * @returns 
      */
-    static async createUser(body: IUser): Promise<IUser> {
-        const user = await users.findOne({email: body.email});
-        if (user) {
-            throw new Error("User already exists");
-        }
-        const hashedPassword = await Bcrypt.hashing(body.password);
-        const newUser = await users.create({
+      static async create(body:any): Promise<IUser> {
+        const hash = await Bcrypt.hashing(body.password);
+        const data = {
             ...body,
-            password: hashedPassword,
-        });
-        return newUser;
-    }
+            password: hash,
+    };
+   
+    return users.create(data);
+    
+}
     /**
-     * authenticating a user
-     * @param email
-     * @param password
-     * @returns {Promise<IUser>}
+     * 
+     * @param email 
+     * @param password 
+     * @returns 
      */
-
-    static async auth(email: string, password: string): Promise<IUser> {
-
-        return users.findOne({email}).lean().then((user: IUser) => {
-            if (!user) {
-                throw new Error("User not found");
-            }
-            if (!Bcrypt.comparing(password, user.password)) {
-                throw new Error("Password is incorrect");
-            }
-            return user;
-        });
+    static async auth(email:string,password:string): Promise<IUser> {
+        //fetch data from database
+        const user=  await users.findOne({email}).lean()
+        //check user is exists or not
+        if (user)
+        {
+                //comparing the password with hash
+            const res= await Bcrypt.comparing(password, user.password);
+                //check correct or not
+                if(res) return user;
+                else throw new Error("wrong password")
+        }
+        else throw new Error("user not exists");
+       
     }
+
+
 
     // book tickets
     static async bookTicket(data): Promise<ITickets> {
         const {userid, cid, mid, showTime,  seats} = data;
         const user = await users.findOne({_id: userid});
         const cinema = await cinemas.findOne({_id: cid});
+        
+        let st1 = new Date(showTime);
+                   
+        
+        
         console.log(cinema);
-        if(!user || !cinema || !seats) {
-            throw  new Error("User or cinema/movieid not found");
+
+        if(!user) {
+            throw  new Error("User not found");
         }
+        if(!cinema) {
+            throw  new Error("cinema not found");
+        }
+        const movieId = cinema.movie; 
+        const movie = await movies.findOne({_id : movieId})
+        if(movieId != mid){
+            throw new Error("This movie doesn't exists in given cinema theatre");
+        }
+        const st = movie.showTime;
+        console.log(st, st1);
+        if(st.getTime() !== st1.getTime()){ 
+            throw new Error("Given showtime not available for movie");
+        }
+        
+        
         const seatsAvailable = await cinemaController.getSeatsAvailable(cid);
-        if(seatsAvailable < 1 && seatsAvailable < seats){
+        if(seatsAvailable < 1 || seatsAvailable < seats){
             throw new Error("No seats available");
         }
         const ticket = await tickets.create({
@@ -63,6 +87,10 @@ export default class userController {
             movie: mid,
             seats: seats
         })
+
+        if(!ticket){
+            throw new Error("Ticket is not created");
+        }
         await cinema.updateOne({
             $inc: {seatsAvailable: - seats}
         })
@@ -72,9 +100,49 @@ export default class userController {
     // get all tickets
         static async getBookings(userId): Promise<ITickets[]> {
 
-        return tickets.aggregate([
+            const ticketsBooks = await tickets.aggregate([
+                {
+                    $match: { user: new mongoose.Types.ObjectId(userId) },
+                },
+                {
+                    $lookup: {
+                        from: "cinemas",
+                        localField: "cinema",
+                        foreignField: "_id",
+                        as: "cinema"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "movies",
+                        localField: "movie",
+                        foreignField: "_id",
+                        as: "movie"
+                    },
+    
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "user",
+                        foreignField: "_id",
+                        as: "user"
+                    },
+    
+                },
+            ]).exec();
+    
+                ticketsBooks.filter(ticket => {
+                    return ticket.movie.showTime > Date.now();
+                })
+            return ticketsBooks;
+    }
+    static async getTicket(userId, tid): Promise<ITickets> {
+
+        const result= await tickets.aggregate([
             {
-                $match: { user: new mongoose.Types.ObjectId(userId) },
+                $match: { user: new mongoose.Types.ObjectId(userId),
+                _id: new mongoose.Types.ObjectId(tid) },
             },
             {
                 $lookup: {
@@ -93,7 +161,19 @@ export default class userController {
                 },
 
             },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                },
 
+            },
         ]).exec();
-    }
+        
+        // if result is empty or not
+        if (result.length > 0) return result[0];
+        else throw new Error("ticket not found");
+}
 }
