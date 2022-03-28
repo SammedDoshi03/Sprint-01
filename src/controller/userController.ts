@@ -2,7 +2,7 @@
 import users, { IUser } from "../models/users";
 import Bcrypt from "../services/bcrypt";
 import tickets, {ITickets} from "../models/tickets";
-import cinemas from "../models/cinemas";
+import cinemas, {ICinema} from "../models/cinemas";
 import cinemaController from "./cinemaController";
 import mongoose from "mongoose";
 import movies from "../models/movies";
@@ -176,4 +176,23 @@ export default class userController {
         if (result.length > 0) return result[0];
         else throw new Error("ticket not found");
 }
+
+    static async getCinemas(movie) : Promise<ICinema[]> {
+        const cinemasList = await cinemas.aggregate(
+            [
+                {
+                    $match: { movie: new mongoose.Types.ObjectId(movie) },
+                },
+                {
+                    $lookup: {
+                        from: "movies",
+                        localField: "movie",
+                        foreignField: "_id",
+                        as: "movie"
+                    },
+
+                },
+            ]).exec();
+        return cinemasList;
+    }
 }

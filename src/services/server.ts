@@ -55,7 +55,7 @@ export default class Server {
                 },
             }),
         );
-        //adminController.create();
+        // adminController.create();
     }
 
     /**
@@ -146,13 +146,13 @@ export default class Server {
                     });
 
                     // validate req.body
-                    await schema.validateAsync(req.body);
+                   const data = await schema.validateAsync(req.body);
 
                     // create data
-                    const data = {
-                        name: req.body.name,
-                        showTime: req.body.showTime,
-                    };
+                    // const data = {
+                    //     name: req.body.name,
+                    //     showTime: req.body.showTime,
+                    // };
 
                     // create the book
                     return movieController.create(data);
@@ -305,6 +305,18 @@ export default class Server {
                 else option = 4;
 
                 return movieController.findAll(data.page, data.limit, +data.nameOrder, +data.showTimeOrder, option);
+            }),
+        );
+
+        //fetch all cinemas for single movie
+        this.app.get(
+            '/movie/:movie',
+            responseToPostman(async  (req:Request) => {
+                const schema = Joi.object({
+                    movie: Joi.string().required(),
+                });
+                const data = await schema.validateAsync(req.params);
+                return await userController.getCinemas(data.movie);
             }),
         );
     }

@@ -1,0 +1,441 @@
+{
+	"info": {
+		"_postman_id": "98a153ca-fd66-4c97-a46a-e32a53590d1a",
+		"name": "Movie Booking Platform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "admin2@gmail.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/admin/auth",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"admin",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Cinema",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "PVR",
+									"type": "default"
+								},
+								{
+									"key": "location",
+									"value": "Pune",
+									"type": "default"
+								},
+								{
+									"key": "seatsAvailable",
+									"value": "20",
+									"type": "default"
+								},
+								{
+									"key": "movie",
+									"value": "6241321245d5aecad6400d0c",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/admin/addCinema",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"admin",
+								"addCinema"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Movie",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "\"Your Name\"",
+									"type": "default"
+								},
+								{
+									"key": "showTime",
+									"value": "2022-06-06T09:00:00Z",
+									"type": "default"
+								},
+								{
+									"key": "cinema",
+									"value": "",
+									"type": "default",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/admin/addMovie",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"admin",
+								"addMovie"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Sam",
+									"type": "default"
+								},
+								{
+									"key": "email",
+									"value": "Sam@test.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "Sam@test",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/users/create",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"users",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "Sam@test.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "Sam@test",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/users/auth",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Book a Ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "cid",
+									"value": "624130a045d5aecad6400d04",
+									"type": "default"
+								},
+								{
+									"key": "mid",
+									"value": "6241309945d5aecad6400d02",
+									"type": "default"
+								},
+								{
+									"key": "showTime",
+									"value": "2022-04-01T12:00:00.000Z",
+									"type": "default"
+								},
+								{
+									"key": "seats",
+									"value": "5",
+									"type": "default"
+								},
+								{
+									"key": "cid",
+									"value": "",
+									"type": "default",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/users/book",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"users",
+								"book"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Booking (tickets)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/users/bookings",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"users",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Ticket",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/users/ticket/6241346645d5aecad6400d2e",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"users",
+								"ticket",
+								"6241346645d5aecad6400d2e"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UnAuth Routes",
+			"item": [
+				{
+					"name": "Movies List",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "cinema Id",
+									"value": "",
+									"type": "default"
+								},
+								{
+									"key": "movie id",
+									"value": "",
+									"type": "default"
+								},
+								{
+									"key": "showTime",
+									"value": "",
+									"type": "default"
+								},
+								{
+									"key": "seats",
+									"value": "",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:12345/movies?nameOrder=0&showTimeOrder=0&limit=5&page=0",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"movies"
+							],
+							"query": [
+								{
+									"key": "nameOrder",
+									"value": "0"
+								},
+								{
+									"key": "showTimeOrder",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cinema List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/cinemas",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"cinemas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cinemas by Movie",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/movie/",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"movie",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

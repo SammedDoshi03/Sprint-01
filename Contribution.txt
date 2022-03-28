@@ -1,0 +1,24 @@
+﻿CAPGEMINI INTERNSHIP/ TRAINING
+
+
+SPRINT 1: MOVIE BOOKING PLATFORM
+
+
+GROUP C
+
+
+
+
+GROUP MEMBER’S CONTRIBUTION
+
+
+Sammed: Cinemas and Tickets:  Models, Controllers, and Routes. 
+
+
+Priyanshu: User: Model, Controller, and Routes.
+
+
+Rutuja: Merging, formatting and testing all the Models, Controllers, and Routes.
+
+
+Harshaavardhini: Movies and Admin:  Models, Controllers, and Routes.
