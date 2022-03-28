@@ -70,7 +70,7 @@
 							"urlencoded": [
 								{
 									"key": "name",
-									"value": "PVR",
+									"value": "Inox1",
 									"type": "default"
 								},
 								{
@@ -85,7 +85,7 @@
 								},
 								{
 									"key": "movie",
-									"value": "6241321245d5aecad6400d0c",
+									"value": "624152ef43fb2012e9b09821",
 									"type": "default"
 								}
 							]
@@ -114,12 +114,12 @@
 							"urlencoded": [
 								{
 									"key": "name",
-									"value": "\"Your Name\"",
+									"value": "demo",
 									"type": "default"
 								},
 								{
 									"key": "showTime",
-									"value": "2022-06-06T09:00:00Z",
+									"value": "2022-02-01 12:00:00Z",
 									"type": "default"
 								},
 								{
@@ -232,18 +232,19 @@
 							"urlencoded": [
 								{
 									"key": "cid",
-									"value": "624130a045d5aecad6400d04",
+									"value": "624152f843fb2012e9b09823",
 									"type": "default"
 								},
 								{
 									"key": "mid",
-									"value": "6241309945d5aecad6400d02",
+									"value": "624152ef43fb2012e9b09821",
 									"type": "default"
 								},
 								{
 									"key": "showTime",
-									"value": "2022-04-01T12:00:00.000Z",
-									"type": "default"
+									"value": "2022-08-01T12:00:00.000Z",
+									"type": "default",
+									"disabled": true
 								},
 								{
 									"key": "seats",
@@ -315,7 +316,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:12345/users/ticket/6241346645d5aecad6400d2e",
+							"raw": "localhost:12345/users/ticket/62413eb9765b596e6d30d91f",
 							"host": [
 								"localhost"
 							],
@@ -323,7 +324,7 @@
 							"path": [
 								"users",
 								"ticket",
-								"6241346645d5aecad6400d2e"
+								"62413eb9765b596e6d30d91f"
 							]
 						}
 					},
@@ -368,7 +369,7 @@
 							]
 						},
 						"url": {
-							"raw": "localhost:12345/movies?nameOrder=0&showTimeOrder=0&limit=5&page=0",
+							"raw": "localhost:12345/movies?showTimeOrder=1&limit=5&page=0",
 							"host": [
 								"localhost"
 							],
@@ -379,11 +380,12 @@
 							"query": [
 								{
 									"key": "nameOrder",
-									"value": "0"
+									"value": "1",
+									"disabled": true
 								},
 								{
 									"key": "showTimeOrder",
-									"value": "0"
+									"value": "1"
 								},
 								{
 									"key": "limit",
@@ -422,14 +424,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:12345/movie/",
+							"raw": "localhost:12345/movie/62413d54765b596e6d30d906",
 							"host": [
 								"localhost"
 							],
 							"port": "12345",
 							"path": [
 								"movie",
-								""
+								"62413d54765b596e6d30d906"
 							]
 						}
 					},

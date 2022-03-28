@@ -49,15 +49,11 @@ export default class userController {
 
     // book tickets
     static async bookTicket(data): Promise<ITickets> {
-        const {userid, cid, mid, showTime,  seats} = data;
+        const {userid, cid, mid,  seats} = data;
         const user = await users.findOne({_id: userid});
         const cinema = await cinemas.findOne({_id: cid});
         
-        let st1 = new Date(showTime);
-                   
-        
-        
-        console.log(cinema);
+        let st1 = new Date();
 
         if(!user) {
             throw  new Error("User not found");
@@ -72,10 +68,9 @@ export default class userController {
         }
         const st = movie.showTime;
         console.log(st, st1);
-        if(st.getTime() !== st1.getTime()){ 
+        if(st1 > st){
             throw new Error("Given showtime not available for movie");
         }
-        
         
         const seatsAvailable = await cinemaController.getSeatsAvailable(cid);
         if(seatsAvailable < 1 || seatsAvailable < seats){

@@ -219,7 +219,7 @@ export default class Server {
                 const schema = Joi.object({
                     cid: Joi.string().required(),
                     mid: Joi.string().required(),
-                    showTime: Joi.date().iso().required(),
+                    // showTime: Joi.date().iso().required(),
                     seats: Joi.number().required(),
                 });
 
@@ -234,7 +234,7 @@ export default class Server {
                         userid: req.session.user._id,
                         cid: req.body.cid,
                         mid: req.body.mid,
-                        showTime: req.body.showTime,
+                        // showTime: req.body.showTime,
                         seats: req.body.seats,
                     };
 
