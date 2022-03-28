@@ -25,102 +25,51 @@ export default class movieController {
      * @param byShowTime - to get movie in ordered list by showtime
      * @param option - option number
      */
-    static async findAll(page: number, limit: number, byName: number, byShowTime: number, option: number): Promise<IMovies[]> {
-        let m = new Date();
-        let bn,bs;
-        if(option==1)
-        {   console.log("Option 1");
-            if(byName==0) bn=1;
-            else bn=-1;
+    static async findAll(page: number, limit: number, byName, byShowTime): Promise<IMovies[]> {
+        //to get regional date time value
+        let date = new Date()
+        let userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        let m= new Date(date.getTime() - userTimezoneOffset);
+        let bn, bs;
 
-            return movies.
-            aggregate([
-                {  //@ts-ignore
-                    $sort: {name:+bn},
-                },
-                {
-                    $skip: page * limit,
-                },
-                {
-                    $limit: limit,
-                },
-                {
-                    $match:
-                        {showTime: { $gte : m}},
-                }
-            ])
-                .exec();
+        if(byShowTime == 0 || isNaN(byShowTime))  bs=1;
+        else bs=-1;
+        if(byName == 0 || isNaN(byName))  bn=1;
+        else bn=-1;
 
+        const mov= await movies.aggregate([
+            {  //@ts-ignore
+                $sort: {showTime: +bs, name: +bn},
+            },
+            {
+                $skip: page * limit,
+            },
+            {
+                $limit: limit,
+            },
+            {
+                $match:
+                    {showTime: {$gte: m}},
+            }
+        ]).exec();
+        //for ascending order by name
+        if(byName == 0 && isNaN(byShowTime))
+        {   mov.sort((a, b) => {
+            let fa = a.name.toLowerCase(), fb = b.name.toLowerCase();
+            if (fa < fb) return -1;
+            if (fa > fb) return 1;
+            return 0;
+        });
         }
-        else if(option === 2){
-            console.log("Option 2");
-            if(byShowTime === 0) bs=1;
-            else bs=-1;
-
-            return movies.
-            aggregate([
-                {  //@ts-ignore
-                    $sort: {showTime:+bs},
-                },
-                {
-                    $skip: page * limit,
-                },
-                {
-                    $limit: limit,
-                },
-                {
-                    $match:
-                        {showTime: { $gte : m}},
-                }
-            ])
-                .exec();
+        //for descending order by name
+        else if(byName == 1 && isNaN(byShowTime))
+        {   mov.sort((a, b) => {
+            let fa = a.name.toLowerCase(), fb = b.name.toLowerCase();
+            if (fa < fb) return 1;
+            if (fa > fb) return -1;
+            return 0;
+        });
         }
-
-        else if (option === 3)
-        {
-            console.log("Option 3")
-            if ( byShowTime===0 && byName===0 ) {bs=1;bn=1;}
-            else if(byShowTime===0 && byName===1) {bs=1;bn=-1;}
-            else if(byShowTime===1 && byName===0) {bs=-1;bn=1;}
-            else {bs=-1;bn=-1;}
-
-            return movies.
-            aggregate([
-                {  //@ts-ignore
-                    $sort: {showTime:+bs,name:+bn},
-                },
-                {
-                    $skip: page * limit,
-                },
-                {
-                    $limit: limit,
-                },
-                {
-                    $match:
-                        {showTime: { $gte : m}},
-                }
-            ])
-                .exec();
-        }
-        else{
-            console.log("Option 4")
-            return movies.
-            aggregate([
-                {  //@ts-ignore
-                    $sort: {showTime:1,name:1},
-                },
-                {
-                    $skip: page * limit,
-                },
-                {
-                    $limit: limit,
-                },
-                {
-                    $match:
-                        {showTime: { $gte : m}},
-                }
-            ])
-                .exec();
-        }
+        return mov;
     }
 }

@@ -4,6 +4,7 @@ import cinemas, {ICinema} from "../models/cinemas";
 import movies, {IMovies} from "../models/movies";
 
 
+
 export default class adminController {
 
     /**
@@ -52,12 +53,22 @@ export default class adminController {
         else throw new Error("Admin doesn't exist");
     }
 
-    // Add a new cinema
+
+    /**
+     * Adding a new cinema
+     * @param cinema
+     */
     static async addCinema(cinema: ICinema): Promise<ICinema> {
-        return await cinemas.create(cinema);
+        const moviePresent = await movies.findOne({ _id: cinema.movie });
+        if (moviePresent.showTime > new Date())
+            return await cinemas.create(cinema);
+        else throw new Error("Movie Showtime is over");
     }
 
-    //Add a new Movie
+    /**
+     * Adding a new movie
+     * @param movie
+     */
     static async addMovie(movie: IMovies): Promise<IMovies> {
         return await movies.create(movie);
     }

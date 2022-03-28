@@ -92,7 +92,7 @@ export default class Server {
                 // @ts-ignore
                 req.session.admin = adm;
 
-                return adm;
+                return "Admin authenticated";
             }),
         );
 
@@ -125,8 +125,9 @@ export default class Server {
                 await schema.validateAsync(req.body);
 
                 // @ts-ignore
-                if (req.session && req.session.admin /*&& req.session.admin.status === "Admin"*/) {
-                    return await adminController.addCinema(req.body);
+                if (req.session && req.session.admin) {
+                    await adminController.addCinema(req.body);
+                    return "Cinema added";
                 } else {
                     throw new Error("You are not authorized to perform this action");
                 }
@@ -148,15 +149,10 @@ export default class Server {
                     // validate req.body
                    const data = await schema.validateAsync(req.body);
 
-                    // create data
-                    // const data = {
-                    //     name: req.body.name,
-                    //     showTime: req.body.showTime,
-                    // };
-
                     // create the book
-                    return movieController.create(data);
-                } else throw new Error("Admin is not authenticated");
+                    await movieController.create(data);
+                    return "Movie added";
+                } else  throw new Error("You are not authorized to perform this action");
             }),
         );
 
@@ -180,9 +176,17 @@ export default class Server {
                 // validating req.body
                 await schema.validateAsync(req.body);
                 // creating user
-                const data = await userController.create(req.body);
-
-                return data;
+                // @ts-ignore
+                if (req.session && req.session.admin) {
+                   const user =  await userController.create(req.body);
+                   if(user) {
+                       return "User created";
+                   } else {
+                       throw new Error("User is not created");
+                   }
+                } else {
+                    throw new Error("You are not authorized to perform this action");
+                }
             }),
         );
 
@@ -203,11 +207,14 @@ export default class Server {
 
                 // authenticate user
                 const user = await userController.auth(req.body.email, req.body.password);
-
-                // set the user session
-                // @ts-ignore
-                req.session.user = user;
-                return user;
+                if(user) {
+                    // set the user session
+                    // @ts-ignore
+                    req.session.user = user;
+                    return "User authenticated successfully";
+                } else {
+                    throw new Error("User is not authenticated");
+                }
             }),
         );
 
@@ -219,7 +226,6 @@ export default class Server {
                 const schema = Joi.object({
                     cid: Joi.string().required(),
                     mid: Joi.string().required(),
-                    // showTime: Joi.date().iso().required(),
                     seats: Joi.number().required(),
                 });
 
@@ -228,13 +234,12 @@ export default class Server {
 
                 // @ts-ignore
 
-                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
+                if (req.session && req.session.user ) {
                     let data = {
                         // @ts-ignore
                         userid: req.session.user._id,
                         cid: req.body.cid,
                         mid: req.body.mid,
-                        // showTime: req.body.showTime,
                         seats: req.body.seats,
                     };
 
@@ -250,7 +255,7 @@ export default class Server {
             "/users/bookings",
             responseToPostman(async (req: Request) => {
                 // @ts-ignore
-                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
+                if (req.session && req.session.user) {
                     // @ts-ignore
                     return await userController.getBookings(req.session.user._id);
                 } else {
@@ -264,7 +269,7 @@ export default class Server {
             "/users/ticket/:id",
             responseToPostman(async (req: Request) => {
                 // @ts-ignore
-                if (req.session && req.session.user /*&& req.session.user.status === "User"*/) {
+                if (req.session && req.session.user ) {
                     // @ts-ignore
                     return await userController.getTicket(req.session.user._id, req.params.id);
                 } else {
@@ -276,7 +281,7 @@ export default class Server {
         /**
          * unauthenticated routes
          */
-        // get all cinemas
+        // fetch all cinemas
         this.app.get(
             "/cinemas",
             responseToPostman(async (req: Request) => {
@@ -298,13 +303,9 @@ export default class Server {
                 // validate page and limit value
                 const data = await schema.validateAsync(req.query);
 
-                let option;
-                if (data.nameOrder !== undefined && data.showTimeOrder === undefined) option = 1;
-                else if (data.nameOrder === undefined && data.showTimeOrder !== undefined) option = 2;
-                else if (data.nameOrder !== undefined && data.showTimeOrder !== undefined) option = 3;
-                else option = 4;
-
-                return movieController.findAll(data.page, data.limit, +data.nameOrder, +data.showTimeOrder, option);
+                // For Ascending order nameOrder = 0, for descending order nameOrder = 1
+                //For Ascending order showTimeOrder = 0, for descending order showTimeOrder = 1
+                return movieController.findAll(data.page, data.limit, data.nameOrder, data.showTimeOrder);
             }),
         );
 
@@ -316,7 +317,7 @@ export default class Server {
                     movie: Joi.string().required(),
                 });
                 const data = await schema.validateAsync(req.params);
-                return await userController.getCinemas(data.movie);
+                return await cinemaController.getCinemasByMovie(data.movie);
             }),
         );
     }

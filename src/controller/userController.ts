@@ -46,9 +46,11 @@ export default class userController {
     }
 
 
-
-    // book tickets
-    static async bookTicket(data): Promise<ITickets> {
+    /**
+     * book tickets
+     * @param data : Object
+     */
+    static async bookTicket(data): Promise<string> {
         const {userid, cid, mid,  seats} = data;
         const user = await users.findOne({_id: userid});
         const cinema = await cinemas.findOne({_id: cid});
@@ -89,10 +91,14 @@ export default class userController {
         await cinema.updateOne({
             $inc: {seatsAvailable: - seats}
         })
-        return ticket;
+        return "Ticket booked successfully";
     }
 
-    // get all tickets
+    /**
+     * get all tickets
+     * @param userId
+     * @returns array of tickets
+     */
         static async getBookings(userId): Promise<ITickets[]> {
 
             const ticketsBooks = await tickets.aggregate([
@@ -114,7 +120,6 @@ export default class userController {
                         foreignField: "_id",
                         as: "movie"
                     },
-    
                 },
                 {
                     $lookup: {
@@ -123,15 +128,29 @@ export default class userController {
                         foreignField: "_id",
                         as: "user"
                     },
-    
                 },
+                {
+                    "$project": {
+                        "user.password": 0
+                    }
+                }
             ]).exec();
-    
-                ticketsBooks.filter(ticket => {
-                    return ticket.movie.showTime > Date.now();
-                })
-            return ticketsBooks;
+            const ticketsBook = ticketsBooks.filter(ticket => {
+                if(ticket.movie[0].showTime > new Date()){
+                    return ticket;
+                }
+            });
+
+            return ticketsBook;
     }
+
+
+    /**
+     * get specific ticket
+     * @param userId
+     * @param tid
+     * @returns ticket
+     */
     static async getTicket(userId, tid): Promise<ITickets> {
 
         const result= await tickets.aggregate([
@@ -163,31 +182,18 @@ export default class userController {
                     foreignField: "_id",
                     as: "user"
                 },
-
             },
+            {
+                "$project": {
+                    "user.password": 0
+                }
+            }
         ]).exec();
         
         // if result is empty or not
         if (result.length > 0) return result[0];
         else throw new Error("ticket not found");
-}
-
-    static async getCinemas(movie) : Promise<ICinema[]> {
-        const cinemasList = await cinemas.aggregate(
-            [
-                {
-                    $match: { movie: new mongoose.Types.ObjectId(movie) },
-                },
-                {
-                    $lookup: {
-                        from: "movies",
-                        localField: "movie",
-                        foreignField: "_id",
-                        as: "movie"
-                    },
-
-                },
-            ]).exec();
-        return cinemasList;
     }
+
+
 }
