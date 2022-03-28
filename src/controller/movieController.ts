@@ -73,6 +73,9 @@ export default class movieController {
             return 0;
         });
         }
+        if(mov.length< 1){
+            throw new Error("No movies found");
+        }
         return mov;
     }
 }

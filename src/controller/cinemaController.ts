@@ -9,7 +9,7 @@ export default class cinemaController{
      */
      static async getCinemas(): Promise<ICinema[]> {
         console.log("getCinemas");
-        return cinemas.aggregate([
+        const cinemasList = await cinemas.aggregate([
             {
                 $lookup: {
                     from: "movies",
@@ -19,7 +19,12 @@ export default class cinemaController{
                 }
             }
         ]).exec();
-       
+
+        if (cinemasList.length > 0) {
+            return cinemasList;
+        } else {
+            throw new Error("No cinemas found");
+        }
     }
 
 
@@ -54,6 +59,10 @@ export default class cinemaController{
 
                 },
             ]).exec();
-        return cinemasList;
+        if(cinemasList.length > 0){
+            return cinemasList;
+        }else{
+            throw new Error("No cinemas found");
+        }
     }
 }

@@ -65,7 +65,7 @@ export default class Server {
     routes() {
         this.app.get("/", (req: Request, res: Response) => {
             console.log("GET /");
-            res.send("Hello world");
+            res.send("Welcome to Movie Booking Platform");
         });
 
         /**
@@ -226,7 +226,7 @@ export default class Server {
                 const schema = Joi.object({
                     cid: Joi.string().required(),
                     mid: Joi.string().required(),
-                    seats: Joi.number().required(),
+                    seats: Joi.number().min(1).required(),
                 });
 
                 // validating req.body
