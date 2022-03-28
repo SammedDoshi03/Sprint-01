@@ -1,1 +1,0 @@
-For movie filtering:0: Ascending order1: Descending orderFor sorting by name order:Tick only nameOrder to sort by movie nameFor sorting by showTime order:Tick only showTimeOrder to sort by show timingsIf both nameOrder and showTimeOrder as ticked:First it will sort according to showTime and then by name

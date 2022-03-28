@@ -10,6 +10,9 @@ export default class movieController {
      * @param body
      */
     static async create(body: any): Promise<IMovies> {
+        if(body.showTime < new Date()) {
+            throw new Error("Show time Expired");
+        }
         const data = {
             name: body.name,
             showTime: new Date(body.showTime),
