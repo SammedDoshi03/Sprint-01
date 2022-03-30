@@ -43,18 +43,40 @@
 					"response": []
 				},
 				{
-					"name": "Add Logout",
+					"name": "Add Movie",
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "demo",
+									"type": "default"
+								},
+								{
+									"key": "showTime",
+									"value": "2022-02-01 12:00:00Z",
+									"type": "default"
+								},
+								{
+									"key": "cinema",
+									"value": "",
+									"type": "default",
+									"disabled": true
+								}
+							]
+						},
 						"url": {
-							"raw": "localhost:12345/logout",
+							"raw": "localhost:12345/admin/addMovie",
 							"host": [
 								"localhost"
 							],
 							"port": "12345",
 							"path": [
-								"logout"
+								"admin",
+								"addMovie"
 							]
 						}
 					},
@@ -105,51 +127,6 @@
 					"response": []
 				},
 				{
-					"name": "Add Movie",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "name",
-									"value": "demo",
-									"type": "default"
-								},
-								{
-									"key": "showTime",
-									"value": "2022-02-01 12:00:00Z",
-									"type": "default"
-								},
-								{
-									"key": "cinema",
-									"value": "",
-									"type": "default",
-									"disabled": true
-								}
-							]
-						},
-						"url": {
-							"raw": "localhost:12345/admin/addMovie",
-							"host": [
-								"localhost"
-							],
-							"port": "12345",
-							"path": [
-								"admin",
-								"addMovie"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "User",
-			"item": [
-				{
 					"name": "Create User",
 					"request": {
 						"method": "POST",
@@ -188,6 +165,29 @@
 					},
 					"response": []
 				},
+				{
+					"name": "Admin Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
 				{
 					"name": "User Login",
 					"request": {
@@ -232,12 +232,12 @@
 							"urlencoded": [
 								{
 									"key": "cid",
-									"value": "624152f843fb2012e9b09823",
+									"value": "62418e7c0c1ed497d5f8508b",
 									"type": "default"
 								},
 								{
 									"key": "mid",
-									"value": "624152ef43fb2012e9b09821",
+									"value": "62418e5e0c1ed497d5f85088",
 									"type": "default"
 								},
 								{
@@ -248,7 +248,7 @@
 								},
 								{
 									"key": "seats",
-									"value": "5",
+									"value": "-20",
 									"type": "default"
 								},
 								{
@@ -268,24 +268,6 @@
 							"path": [
 								"users",
 								"book"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Logout",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "localhost:12345/logout",
-							"host": [
-								"localhost"
-							],
-							"port": "12345",
-							"path": [
-								"logout"
 							]
 						}
 					},
@@ -325,6 +307,24 @@
 								"users",
 								"ticket",
 								"62413eb9765b596e6d30d91f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:12345/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "12345",
+							"path": [
+								"logout"
 							]
 						}
 					},
@@ -369,7 +369,7 @@
 							]
 						},
 						"url": {
-							"raw": "localhost:12345/movies?showTimeOrder=1&limit=5&page=0",
+							"raw": "localhost:12345/movies",
 							"host": [
 								"localhost"
 							],
@@ -385,15 +385,18 @@
 								},
 								{
 									"key": "showTimeOrder",
-									"value": "1"
+									"value": "0",
+									"disabled": true
 								},
 								{
 									"key": "limit",
-									"value": "5"
+									"value": "5",
+									"disabled": true
 								},
 								{
 									"key": "page",
-									"value": "0"
+									"value": "0",
+									"disabled": true
 								}
 							]
 						}
