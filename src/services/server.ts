@@ -7,11 +7,9 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import responseToPostman from "../middleware/responseToPostman";
 
-import Log from "../config/log";
 import expressLog from "../middleware/expressLog";
 
 import Joi from "joi";
-import morgan from "morgan";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
@@ -37,7 +35,6 @@ export default class Server {
      * @info middleware
      */
     middleware() {
-        this.app.use(morgan("combined"));
         this.app.use(expressLog);
         this.app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -91,6 +88,8 @@ export default class Server {
                 // set the admin session
                 // @ts-ignore
                 req.session.admin = adm;
+                // @ts-ignore
+                req.session.user = null;
 
                 return "Admin authenticated";
             }),
@@ -118,7 +117,7 @@ export default class Server {
                     movie: Joi.string().required(),
                     name: Joi.string().required(),
                     location: Joi.string().required(),
-                    seatsAvailable: Joi.number().min(0).max(100).required(),
+                    seatsAvailable: Joi.number().min(10).max(100).required(),
                 });
 
                 // validating req.body
@@ -211,6 +210,8 @@ export default class Server {
                     // set the user session
                     // @ts-ignore
                     req.session.user = user;
+                    // @ts-ignore
+                    req.session.admin = null;
                     return "User authenticated successfully";
                 } else {
                     throw new Error("User is not authenticated");

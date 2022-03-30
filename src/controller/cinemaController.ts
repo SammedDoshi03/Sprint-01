@@ -8,7 +8,6 @@ export default class cinemaController{
      * Find all cinemas
      */
      static async getCinemas(): Promise<ICinema[]> {
-        console.log("getCinemas");
         const cinemasList = await cinemas.aggregate([
             {
                 $lookup: {
