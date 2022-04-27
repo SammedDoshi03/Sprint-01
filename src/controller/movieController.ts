@@ -41,6 +41,10 @@ export default class movieController {
         else bn=-1;
 
         const mov= await movies.aggregate([
+            {
+                $match:
+                    {showTime: {$gte: m}},
+            },
             {  //@ts-ignore
                 $sort: {showTime: +bs, name: +bn},
             },
@@ -49,10 +53,6 @@ export default class movieController {
             },
             {
                 $limit: limit,
-            },
-            {
-                $match:
-                    {showTime: {$gte: m}},
             }
         ]).exec();
         //for ascending order by name

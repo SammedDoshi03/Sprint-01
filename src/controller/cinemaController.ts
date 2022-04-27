@@ -20,7 +20,14 @@ export default class cinemaController{
         ]).exec();
 
         if (cinemasList.length > 0) {
-            return cinemasList;
+            //filter out the movies that are out of date
+            const cinema = cinemasList.filter(cinema => {
+                const movie = cinema.movie[0];
+                return new Date(movie.showTime) > new Date();
+            })
+            if(cinema.length > 0)
+                return cinema;
+            else throw new Error("No cinemas found")
         } else {
             throw new Error("No cinemas found");
         }
@@ -58,9 +65,16 @@ export default class cinemaController{
 
                 },
             ]).exec();
-        if(cinemasList.length > 0){
-            return cinemasList;
-        }else{
+        if (cinemasList.length > 0) {
+            //filter out the movies that are out of date
+            const cinema = cinemasList.filter(cinema => {
+                const movie = cinema.movie[0];
+                return new Date(movie.showTime) > new Date();
+            })
+            if(cinema.length > 0)
+                return cinema;
+            else throw new Error("No cinemas found")
+        } else {
             throw new Error("No cinemas found");
         }
     }

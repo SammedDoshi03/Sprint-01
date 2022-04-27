@@ -192,11 +192,12 @@ export default class userController {
             }
         ]).exec();
 
-        if(result[0].movie[0].showTime < new Date()){
-            throw new Error("Ticket is expired");
-        }
         // if result is empty or not
-        if (result.length > 0) return result[0];
+        if (result.length > 0) {
+            if(result[0].movie[0].showTime < new Date()){
+                throw new Error("Ticket is expired");
+            }
+            return result[0];}
         else throw new Error("ticket not found");
     }
 
